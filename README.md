@@ -28,7 +28,7 @@ Or install it yourself as:
 
 ## Requirements
 
-- Ruby 3.3.6 or higher
+- Ruby 3.2.3 or higher
 - Lubuntu with LXQt desktop environment
 - Openbox window manager
 

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Migrated from `dbus` gem to `ruby-dbus` gem for better compatibility and maintenance
+- Updated Ruby version requirement from 3.3.6+ to 3.2.3+ for broader compatibility
 
 ## [1.0.0] - 2025-09-07
 
@@ -25,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Command-line interface support
 - D-Bus integration for system services
 - Error handling and logging
-- Ruby 3.3.6+ support
+- Ruby 3.2.3+ support
 
 ### Features
 - **WindowManager**: Complete window control (move, resize, minimize, maximize, close)

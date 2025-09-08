@@ -4,7 +4,7 @@ Welcome to the LubuntuGui user guide! This document provides practical examples 
 
 ## Installation
 
-First, make sure you have Ruby 3.3.6 or higher installed. Then, install the gem:
+First, make sure you have Ruby 3.2.3 or higher installed. Then, install the gem:
 
 ```bash
 gem install lubuntu-gui
