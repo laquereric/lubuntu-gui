@@ -24,9 +24,9 @@ module LubuntuGui
         return false unless dbus_available?
 
         begin
-          bus = DBus::SessionBus.instance
-          service = bus.service("org.freedesktop.Notifications")
-          object = service.object("/org/freedesktop/Notifications")
+          bus = DBus.session_bus
+          service = bus["org.freedesktop.Notifications"]
+          object = service["/org/freedesktop/Notifications"]
           object.introspect
           
           interface = object["org.freedesktop.Notifications"]
@@ -53,9 +53,9 @@ module LubuntuGui
         return { available: false } unless dbus_available?
 
         begin
-          bus = DBus::SystemBus.instance
-          service = bus.service("org.freedesktop.NetworkManager")
-          object = service.object("/org/freedesktop/NetworkManager")
+          bus = DBus.system_bus
+          service = bus["org.freedesktop.NetworkManager"]
+          object = service["/org/freedesktop/NetworkManager"]
           object.introspect
           
           interface = object["org.freedesktop.NetworkManager"]
@@ -101,7 +101,7 @@ module LubuntuGui
       #
       # @return [Boolean] true if D-Bus is available
       def dbus_available?
-        defined?(DBus::SessionBus) && !ENV["DBUS_SESSION_BUS_ADDRESS"].nil?
+        defined?(DBus) && DBus.respond_to?(:session_bus) && !ENV["DBUS_SESSION_BUS_ADDRESS"].nil?
       end
 
       private

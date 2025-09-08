@@ -37,7 +37,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Runtime dependencies
-  spec.add_dependency "dbus", "~> 0.17"
+  spec.add_dependency "ruby-dbus", "~> 0.25"
   spec.add_dependency "nokogiri", "~> 1.15"
   spec.add_dependency "inifile", "~> 3.0"
 
