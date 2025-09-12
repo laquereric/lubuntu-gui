@@ -1,8 +1,17 @@
 # frozen_string_literal: true
 
 module LubuntuGui
+
+  
   # Manages application launching and desktop integration
   class Application
+    attr_accessor :name, :file, :desktop_entry
+
+    def initialize(name:,file:)
+      @name = name
+      @file = file
+    end
+    
     class << self
       # Launch an application by name
       #

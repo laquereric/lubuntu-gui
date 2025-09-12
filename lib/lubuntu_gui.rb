@@ -4,12 +4,17 @@ require_relative "lubuntu_gui/version"
 require_relative "lubuntu_gui/command_executor"
 require_relative "lubuntu_gui/dbus_client"
 require_relative "lubuntu_gui/configuration"
+require_relative "lubuntu_gui/collector_base"
+require_relative "lubuntu_gui/instance"
+require_relative "lubuntu_gui/dir"
 require_relative "lubuntu_gui/window_manager"
 require_relative "lubuntu_gui/panel"
 require_relative "lubuntu_gui/application"
+require_relative "lubuntu_gui/applications"
 require_relative "lubuntu_gui/desktop"
 require_relative "lubuntu_gui/system"
-
+require_relative "lubuntu_gui/user"
+require_relative "lubuntu_gui/users"
 # LubuntuGui provides a comprehensive Ruby interface for managing Lubuntu desktop
 # environment components including window management, panel configuration,
 # application launching, desktop management, and system integration.
