@@ -40,6 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "ruby-dbus", "~> 0.25"
   spec.add_dependency "nokogiri", "~> 1.15"
   spec.add_dependency "inifile", "~> 3.0"
+  spec.add_dependency "activesupport", "~> 7.0"
 
   # Development dependencies
   spec.add_development_dependency "bundler", "~> 2.0"

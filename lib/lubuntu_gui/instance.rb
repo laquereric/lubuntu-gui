@@ -15,12 +15,12 @@ module LubuntuGui
   # @author Lubuntu GUI Team
   # @since 1.0.0
   class Instance < CollectorBase
-    attr_accessor :directory
+
     # Initialize a new instance
     #
     # Calls the parent constructor to set up the children collection
-    def initialize(directory:)
-      super(directory: directory)
+    def initialize(name:, source_file:, directory:)
+      super(name: name, source_file: source_file, directory: directory)
     end
   end
 end

@@ -16,13 +16,11 @@ module LubuntuGui
   # @since 1.0.0
   DEBUG = true
 
-  class CollectorBase
-    attr_accessor :children
+  class ItemBase
+    attr_accessor :name, :source_file, :directory, :children
 
     def self.item_class
-        classname = self.name.split("::").last.singularize.capitalize
-        puts("classname: #{classname}") if DEBUG
-        [LubuntuGui,classname].join("::").constantize
+        self.name.split("::").last.singularize.capitalize.constantize
     end
 
     # Initialize the collector and load all child components
@@ -34,9 +32,6 @@ module LubuntuGui
       @children = get_children
     end
 
-    def basename
-        @name.split(".").first
-    end
     private
 
     # Get the name for the children directory based on the class name
@@ -79,16 +74,10 @@ module LubuntuGui
     # @param file [String] Path to the file to evaluate
     # @return [Hash] Hash containing file path and evaluation result
     def eval_file(file)
-      klass = self.class.item_class
-      puts("klass: #{klass}") if DEBUG
-      name = [self.basename,'.',File.basename(file).capitalize].join("")
-      puts("name: #{name}") if DEBUG
-      directory = File.dirname(file)
-      puts("directory: #{directory}") if DEBUG
       {
         file: file,
         # evaled: load(file)
-        evaled: klass.new(name: name, source_file: file, directory: directory)
+        evaled: self.class.item_class.new(source_file: file)
       }
     end
 
@@ -116,9 +105,8 @@ module LubuntuGui
       
       # Look up the class in the LubuntuGui module
       if LubuntuGui.const_defined?(class_name)
-        collection_klass = LubuntuGui.const_get(class_name)
-        puts("collection_klass: #{collection_klass}") if DEBUG
-        instance = collection_klass.new(name: [self.basename,'.',class_name.downcase].join(""),source_file: @source_file, directory: File.dirname(dir))
+        klass = LubuntuGui.const_get(class_name)
+        instance = klass.new(directory: File.dirname(dir))
         acc[dir] = instance
       else
         puts("Class LubuntuGui::#{class_name} not found") if DEBUG

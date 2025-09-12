@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "active_support/inflector"
 require_relative "lubuntu_gui/version"
 require_relative "lubuntu_gui/command_executor"
 require_relative "lubuntu_gui/dbus_client"
@@ -9,6 +10,7 @@ require_relative "lubuntu_gui/instance"
 require_relative "lubuntu_gui/dir"
 require_relative "lubuntu_gui/window_manager"
 require_relative "lubuntu_gui/panel"
+require_relative "lubuntu_gui/item_base"
 require_relative "lubuntu_gui/application"
 require_relative "lubuntu_gui/applications"
 require_relative "lubuntu_gui/desktop"
