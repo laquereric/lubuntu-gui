@@ -7,7 +7,7 @@ module LubuntuGui
   class Application < ItemBase
     attr_accessor :desktop_entry
 
-    def initialize(name:,source_file:,directory:)
+    def initialize(source_file:)
       super
     end
     

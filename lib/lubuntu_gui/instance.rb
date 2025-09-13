@@ -20,7 +20,7 @@ module LubuntuGui
     #
     # Calls the parent constructor to set up the children collection
     def initialize(name:, source_file:, directory:)
-      super(name: name, source_file: source_file, directory: directory)
+      super(source_file: source_file)
     end
   end
 end

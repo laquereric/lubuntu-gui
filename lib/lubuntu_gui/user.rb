@@ -7,9 +7,8 @@ module LubuntuGui
   class User < ItemBase
     attr_accessor :username, :password, :home_directory, :shell_path
 
-    def initialize(name:, source_file:, directory:)
-      super(name: name, source_file: source_file, directory: directory)
-    end
+    def initialize(source_file:)
+      super
 
     def add_user(username, home_dir = nil)
       home_dir ||= "/home/#{username}"

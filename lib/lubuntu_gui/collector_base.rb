@@ -26,9 +26,9 @@ module LubuntuGui
     end
 
     # Initialize the collector and load all child components
-    def initialize(name:, source_file:, directory:)
-      @name = name
+    def initialize(source_file:)
       @source_file = source_file
+      @name = name
       @directory = directory
       puts("directory: #{@directory}") if DEBUG
       @children = get_children
