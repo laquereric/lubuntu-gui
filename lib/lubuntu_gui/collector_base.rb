@@ -17,28 +17,134 @@ module LubuntuGui
   DEBUG = true
 
   class CollectorBase
-    attr_accessor :children
+    attr_accessor :directory, :source_file, :catalog, :catalog_path
+    
+    class CollectorEntry
+      attr_accessor :collector
+      
+      def initialize( collector:)
 
-    def self.item_class
-        classname = self.name.split("::").last.singularize.capitalize
-        puts("classname: #{classname}") if DEBUG
-        [LubuntuGui,classname].join("::").constantize
+        puts("CollectorEntry.initialize: collector: #{collector}") if DEBUG
+        @collector = collector
+      end
+
+      def item
+        self.collector
+      end
+      
+      def item_class
+        item.class
+      end
+
+      def item_class_name
+        item_class.name
+      end
+
+    end
+
+    class FileEntries
+      attr_accessor :collector, :relative_path
+      
+      def initialize( collector:, relative_path:)
+        puts("File.initialize: collector: #{collector}, relative_path: #{relative_path}") if DEBUG
+        @collector = collector
+        @relative_path = relative_path
+      end
+
+      def relative_path_split
+        @relative_path.split('.')
+      end
+
+      def name
+        relative_path_split.first
+      end
+
+      def extension
+        relative_path_split.last
+      end
+
+      def collect_item(entry)
+        @relative_path = entry
+      end
+    end
+    
+    class DirectoryEntries
+      attr_accessor :collector, :relative_path
+      
+      def initialize( collector:, relative_path:)
+        puts("DirectoryEntries.initialize: collector: #{collector}") if DEBUG
+        @collector = collector
+        @relative_path = relative_path
+      end
+
+      def collect_item(entry)
+        @relative_path = entry
+      end
     end
 
     # Initialize the collector and load all child components
-    def initialize(source_file:)
+    def initialize(catalog:, catalog_path:, source_file:)
+      @catalog = catalog
+      puts("catalog: #{@catalog}") if DEBUG
+            
       @source_file = source_file
-      @name = name
-      @directory = directory
-      puts("directory: #{@directory}") if DEBUG
-      @children = get_children
+      puts("source_file: #{@source_file}") if DEBUG
+      
+      puts("name: #{name}") if DEBUG
+      
+      puts("children_name: #{children_name}") if DEBUG
+      
+      @item = CollectorEntry.new(collector: self)
+      @catalog_path = @catalog.add_item(entry_category: 'collector_entry', catalog_path: catalog_path, name: name, item: @item)
+      puts("catalog_path: #{@catalog_path}") if DEBUG
+
+      glob_children_folder_files.each do |file_entry|
+        @catalog.add_item(entry_category: 'file_entry', catalog_path: catalog_path, name: name, item: file_entry)
+      end
+
+      glob_children_folder_dirs.each do |directory_entry|
+        @catalog.add_item(entry_category: 'directory_entry', catalog_path: catalog_path, name: name, item: directory_entry)
+      end
     end
 
-    def basename
-        @name.split(".").first
+    def directory
+      File.expand_path('..',@source_file)
+    end 
+    #
+    # @return [Array<String>] Array of file paths
+    def glob_children_folder_files
+      Dir.glob(glob_string)
+        .select { |entry| !ignore_entry(entry) && File.file?(entry) }
+        .map { |entry| FileEntries.new(collector: self, relative_path: relative_path(entry))}
     end
+
+    def glob_children_folder_dirs
+      Dir.glob(glob_string)
+        .select { |entry| !ignore_entry(entry) && File.directory?(entry) }
+        .map { |entry| DirectoryEntries.new(collector: self, relative_path: relative_path(entry))}
+    end
+
+    def glob_children_folder
+      Dir.glob(glob_string)
+        .select { |entry| !ignore_entry(entry) }
+    end
+
+    # Overrideable - See Instance for an example
+    def name
+      @source_file.split(".").first
+    end
+
+    def children_name
+      name
+    end
+    
     private
-
+    
+    def children_directory
+      result = File.expand_path(directory,children_name)
+      puts("children_directory: #{result}") if DEBUG
+      result
+    end
     # Get the name for the children directory based on the class name
     #
     # @return [String] The directory name for child components
@@ -48,30 +154,29 @@ module LubuntuGui
       result
     end
 
-    # Get the full path to the children directory
-    #
-    # @return [String] The full path to the children directory
-    def children_folder
-      result = File.expand_path("#{@directory}/#{children_name}", __FILE__)
-      puts("children_folder: #{result}") if DEBUG
-      result
-    end
-
     # Get the glob pattern for finding child files
     #
     # @return [String] The glob pattern for Ruby files
     def glob_string
-      result = "#{children_folder}/*"
+      result = "#{children_directory}/*"
+      puts("glob_string: #{result}") if DEBUG
       result
     end
 
-    # Get all files matching the glob pattern
-    #
-    # @return [Array<String>] Array of file paths
-    def glob_children_folder
-      result = ::Dir.glob(glob_string, File::FNM_DOTMATCH).reject { |path| File.basename(path).start_with?('.') }
-      puts("glob_children_folder: #{result}") if DEBUG
-      result
+    def directory_path_length
+      directory.split('/').length
+    end
+    
+    def entry_path_split(entry)
+      entry.split('/')
+    end
+
+    def relative_path(entry)
+      entry_path_split(entry)[directory_path_length..-1].join('/')
+    end
+    
+    def ignore_entry(entry)
+      entry.start_with?('.')
     end
 
     # Evaluate a file and return file info and evaluation result
@@ -124,7 +229,6 @@ module LubuntuGui
         puts("Class LubuntuGui::#{class_name} not found") if DEBUG
       end
     end
-
     # Get all child components by scanning the children directory
     #
     # @return [Hash] Hash of file paths to their evaluation result or instance of the class

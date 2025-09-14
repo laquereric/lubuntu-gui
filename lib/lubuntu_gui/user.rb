@@ -9,7 +9,9 @@ module LubuntuGui
 
     def initialize(source_file:)
       super
-
+      @users = []
+    end
+    
     def add_user(username, home_dir = nil)
       home_dir ||= "/home/#{username}"
       @users << { username: username, home_dir: home_dir }
@@ -32,7 +34,7 @@ module LubuntuGui
 end
 
 if __FILE__ == $0
-  users = Users.new
+  users = User.new(source_file: __FILE__)
   users.add_user("testuser")
   users.list_users
   users.create_user_directories

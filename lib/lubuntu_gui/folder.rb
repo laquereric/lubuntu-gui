@@ -14,15 +14,18 @@ module LubuntuGui
   #
   # @author Lubuntu GUI Team
   # @since 1.0.0
-  class Dir < CollectorBase
+  class Folder < CollectorBase
     attr_accessor :directory
 
     # Initialize a new directory instance
     #
     # @param directory [String] The directory path to manage
+    # @param source_file [String] The source file path
+    # @param catalog [Catalog] The catalog instance
+    # @param catalog_path [String] The catalog path
     # Calls the parent constructor to set up the children collection
-    def initialize(directory:)
-      super(directory: directory)
+    def initialize(directory:, source_file:, catalog:, catalog_path:)
+      super(directory: directory, source_file: source_file, catalog: catalog, catalog_path: catalog_path)
     end
   end
 end
