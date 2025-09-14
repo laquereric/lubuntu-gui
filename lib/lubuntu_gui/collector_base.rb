@@ -72,7 +72,7 @@ module LubuntuGui
       attr_accessor :collector, :relative_path
       
       def initialize( collector:, relative_path:)
-        puts("DirectoryEntries.initialize: collector: #{collector}") if DEBUG
+        puts("DirectoryEntries.initialize: collector: #{collector}, relative_path: #{relative_path}") if DEBUG
         @collector = collector
         @relative_path = relative_path
       end
@@ -97,7 +97,7 @@ module LubuntuGui
       @item = CollectorEntry.new(collector: self)
       @catalog_path = @catalog.add_item(entry_category: 'collector_entry', catalog_path: catalog_path, name: name, item: @item)
       puts("catalog_path: #{@catalog_path}") if DEBUG
-
+ 
       glob_children_folder_files.each do |file_entry|
         @catalog.add_item(entry_category: 'file_entry', catalog_path: catalog_path, name: name, item: file_entry)
       end
@@ -113,20 +113,17 @@ module LubuntuGui
     #
     # @return [Array<String>] Array of file paths
     def glob_children_folder_files
+      puts("glob_children_folder_files: #{glob_string}") if DEBUG
       Dir.glob(glob_string)
         .select { |entry| !ignore_entry(entry) && File.file?(entry) }
         .map { |entry| FileEntries.new(collector: self, relative_path: relative_path(entry))}
     end
 
     def glob_children_folder_dirs
+      puts("glob_children_folder_dirs: #{glob_string}") if DEBUG
       Dir.glob(glob_string)
         .select { |entry| !ignore_entry(entry) && File.directory?(entry) }
         .map { |entry| DirectoryEntries.new(collector: self, relative_path: relative_path(entry))}
-    end
-
-    def glob_children_folder
-      Dir.glob(glob_string)
-        .select { |entry| !ignore_entry(entry) }
     end
 
     # Overrideable - See Instance for an example
@@ -141,8 +138,7 @@ module LubuntuGui
     private
     
     def children_directory
-      result = File.expand_path(directory,children_name)
-      puts("children_directory: #{result}") if DEBUG
+      result = File.join(directory,children_name)
       result
     end
     # Get the name for the children directory based on the class name
@@ -150,7 +146,6 @@ module LubuntuGui
     # @return [String] The directory name for child components
     def children_name
       result = self.class.name.split("::").last.downcase
-      puts("children_name: #{result}") if DEBUG
       result
     end
 
@@ -159,7 +154,6 @@ module LubuntuGui
     # @return [String] The glob pattern for Ruby files
     def glob_string
       result = "#{children_directory}/*"
-      puts("glob_string: #{result}") if DEBUG
       result
     end
 
@@ -172,7 +166,7 @@ module LubuntuGui
     end
 
     def relative_path(entry)
-      entry_path_split(entry)[directory_path_length..-1].join('/')
+      entry_path_split(entry)[directory_path_length+1..-1].join('/')
     end
     
     def ignore_entry(entry)
@@ -196,7 +190,7 @@ module LubuntuGui
         evaled: klass.new(name: name, source_file: file, directory: directory)
       }
     end
-
+=begin
     # Add a file to the accumulator
     #
     # @param acc [Hash] The accumulator hash
@@ -229,6 +223,7 @@ module LubuntuGui
         puts("Class LubuntuGui::#{class_name} not found") if DEBUG
       end
     end
+=end
     # Get all child components by scanning the children directory
     #
     # @return [Hash] Hash of file paths to their evaluation result or instance of the class
