@@ -78,7 +78,14 @@ module LubuntuGui
 
       def instance(directory:)
         @name = directory
-        self
+        base_klassname = self.class.name.split('::')[0..-3]
+        directory_klassname =  [base_klassname,directory.capitalize].join('::')
+        p directory_klassname
+        begin
+          directory_klassname.constantize
+        rescue
+          raise "No class found for directory #{directory}. Tried #{directory_klassname}"
+        end
       end
     end
 
