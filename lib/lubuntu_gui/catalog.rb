@@ -7,11 +7,17 @@ module LubuntuGui
             @instance = Instance.new(source_file: source_file, catalog: self, catalog_path: nil)
         end
 
-        def add_item( catalog_path:, entry_category:, item:)
-            add_parts_item(entry_path:[catalog_path, entry_category].compact.join('/'), item:)
-            self
+        def add_category(catalog:, category:)
+            entry_path =  [catalog,category].join('/')
+            add_parts_item(entry_path: entry_path, item: {})
+            entry_path
         end
-
+        
+        def add_to_category(category:, item:)
+            item_entry = {}
+            item_entry[item.name] = item
+            add_parts_item(entry_path: category, item: item_entry)
+        end
         #private
         
         def add_parts_item(entry_path:, item:)

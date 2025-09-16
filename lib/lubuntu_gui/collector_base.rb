@@ -69,16 +69,16 @@ module LubuntuGui
     end
     
     class DirectoryEntries
-      attr_accessor :collector, :relative_path
+      attr_accessor :collector, :relative_path, :name
       
       def initialize( collector:)
         puts("DirectoryEntries.initialize: collector: #{collector}, relative_path: #{relative_path}") if DEBUG
         @collector = collector
-        @relative_path = relative_path
       end
 
-      def collect(dir)
-        @relative_path = dir
+      def instance(directory:)
+        @name = directory
+        self
       end
     end
 
@@ -91,13 +91,18 @@ module LubuntuGui
       puts("source_file: #{@source_file}") if DEBUG
       
       puts("name: #{name}") if DEBUG
-            
-      collector_entry = CollectorEntry.new(collector: self).collector
+
+      collector_category = @catalog.add_category(catalog: catalog_path, category: 'collector')
+      @catalog.add_to_category(
+        category: collector_category,
+        item: CollectorEntry.new(collector: self).collector
+      )
       #@catalog.add_item(catalog_path: catalog_path, entry_category: 'collector_entry', item: @item)
       
       if (files = glob_children_folder_files).any?
-        @catalog.add_item(catalog_path: catalog_path, entry_category: 'file_entries', item: {})
-        file_entries = FileEntries.new(collector: self)
+        raise "not ready"
+        #@catalog.add_item(catalog_path: catalog_path, entry_category: 'file_entries', item: {})
+        #file_entries = FileEntries.new(collector: self)
 
   
           #@catalog.add_item(entry_category: 'file_entries', catalog_path: [catalog_path,'file_entries'.join('/')], item: file_entry)
@@ -106,13 +111,11 @@ module LubuntuGui
       end
   
       if (dirs = glob_children_folder_dirs).any?
-        @catalog.add_item(catalog_path: catalog_path, entry_category: 'directory_entries', item: {} )
+        dirs_category = @catalog.add_category(catalog: collector_category, category: 'directory_entries')
         directory_entries = DirectoryEntries.new(collector: self)
-        dir_catalog_path = [catalog_path, 'directory_entries'].join('/')
         dirs.each{ |dir|
-          item = {}
-          item[dir] = "instance"
-          @catalog.add_parts_item(entry_path: dir_catalog_path, item: item )
+          item = directory_entries.instance(directory:dir)
+          @catalog.add_to_category(category: dirs_category, item: item )
         }
       end
     end
