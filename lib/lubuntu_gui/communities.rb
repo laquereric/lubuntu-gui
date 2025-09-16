@@ -5,15 +5,15 @@ require "fileutils"
 
 module LubuntuGui
   # Manages configuration for LubuntuGui and system settings
-  class Communities
+  class Communities < CollectorBase
     attr_accessor :debug, :timeout, :lxqt_config_path, :openbox_config_path
 
-    def initialize
-      @debug = false
-      @timeout = 30
-      @lxqt_config_path = default_lxqt_config_path
-      @openbox_config_path = default_openbox_config_path
-    end
+    #def initialize
+    #  @debug = false
+    #  @timeout = 30
+    #  @lxqt_config_path = default_lxqt_config_path
+    #  @openbox_config_path = default_openbox_config_path
+    #end
 
     # Get LXQt configuration file path
     #

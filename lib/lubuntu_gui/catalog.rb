@@ -15,10 +15,11 @@ module LubuntuGui
         
         def add_to_category(category:, item:)
             item_entry = {}
-            item_entry[item.name] = item
+            item_entry[item.catalog_property] = item
             add_parts_item(entry_path: category, item: item_entry)
         end
-        #private
+
+        private
         
         def add_parts_item(entry_path:, item:)
             puts("add_parts_item: #{entry_path} item: #{item}") if DEBUG

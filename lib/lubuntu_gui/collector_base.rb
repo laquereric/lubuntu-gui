@@ -71,21 +71,29 @@ module LubuntuGui
     class DirectoryEntries
       attr_accessor :collector, :relative_path, :name
       
-      def initialize( collector:)
+      def initialize(collector:)
         puts("DirectoryEntries.initialize: collector: #{collector}, relative_path: #{relative_path}") if DEBUG
         @collector = collector
       end
 
-      def instance(directory:)
-        @name = directory
+      def catalog
+        collector.catalog
+      end
+
+      def source_file
+        collector.source_file
+      end
+      
+      def instance(catalog_path: ,directory:)
         base_klassname = self.class.name.split('::')[0..-3]
-        directory_klassname =  [base_klassname,directory.capitalize].join('::')
-        p directory_klassname
+        p directory_klassname = [base_klassname,directory.capitalize].join('::')
         begin
-          directory_klassname.constantize
+          klass = directory_klassname.constantize
         rescue
           raise "No class found for directory #{directory}. Tried #{directory_klassname}"
         end
+        #TODO fix kluge
+        klass.new(catalog: catalog, catalog_path: [catalog_path,directory].join('/'), source_file:"")
       end
     end
 
@@ -120,11 +128,16 @@ module LubuntuGui
       if (dirs = glob_children_folder_dirs).any?
         dirs_category = @catalog.add_category(catalog: collector_category, category: 'directory_entries')
         directory_entries = DirectoryEntries.new(collector: self)
-        dirs.each{ |dir|
-          item = directory_entries.instance(directory:dir)
+        dirs.each{ |directory|
+          item = directory_entries.instance(catalog_path: dirs_category,directory: directory)
           @catalog.add_to_category(category: dirs_category, item: item )
         }
       end
+    end
+
+    # Overrideable - See Instance for an example
+    def catalog_property
+      self.class.to_s.split('::').last.downcase
     end
 
     def directory
@@ -133,20 +146,19 @@ module LubuntuGui
     #
     # @return [Array<String>] Array of file paths
     def glob_children_folder_files
-      puts("glob_children_folder_files: #{glob_string}") if DEBUG
+      puts("glob_children_files: #{glob_string}") if DEBUG
       Dir.glob(glob_string)
         .select { |entry| !ignore_entry(entry) && File.file?(entry) }
         .map { |entry| relative_path(entry) }
     end
 
     def glob_children_folder_dirs
-      puts("glob_children_folder_dirs: #{glob_string}") if DEBUG
+      puts("glob_children_dirs: #{glob_string}") if DEBUG
       Dir.glob(glob_string)
         .select { |entry| !ignore_entry(entry) && File.directory?(entry) }
         .map { |entry| relative_path(entry) }
     end
 
-    # Overrideable - See Instance for an example
     def name
       @source_file.split(".").first
     end
