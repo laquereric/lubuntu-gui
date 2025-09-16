@@ -19,17 +19,23 @@ module LubuntuGui
   class ItemBase
     attr_accessor :name, :source_file, :directory, :children
 
-    def self.item_class
-        self.name.split("::").last.singularize.capitalize.constantize
-    end
+    #def self.item_class
+    #    self.name.split("::").last.singularize.capitalize.constantize
+    #end
 
+    def initialize(catalog:, catalog_path:, source_file:)
     # Initialize the collector and load all child components
-    def initialize(source_file:)
-      @source_file = source_file
-      @name = name
-      @directory = directory
-      puts("directory: #{@directory}") if DEBUG
-      @children = get_children
+    #def initialize(source_file:)
+      #@source_file = source_file
+      #@name = name
+      #@directory = directory
+      #puts("directory: #{@directory}") if DEBUG
+      #@children = get_children
+    end
+    # Overrideable - See Instance for an example
+
+    def catalog_property
+      self.class.to_s.split('::').last.downcase
     end
 
     private

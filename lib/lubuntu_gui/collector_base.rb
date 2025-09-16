@@ -46,33 +46,42 @@ module LubuntuGui
       attr_accessor :collector
       
       def initialize( collector:)
-        puts("File.initialize: collector: #{collector}, relative_path: #{relative_path}") if DEBUG
+        puts("File.initialize: collector: #{collector}") if DEBUG
         @collector = collector
-        @relative_path = relative_path
       end
 
-      def relative_path_split
-        @relative_path.split('.')
+      def catalog
+        collector.catalog
       end
 
-      def name
-        relative_path_split.first
+      def source_file
+        collector.source_file
       end
 
-      def extension
-        relative_path_split.last
+      def instance(catalog_path:, file:)
+        
+        file_split = file.split('.')
+        base = file_split[0]
+        ext = file_split[1]
+
+        base_klassname = self.class.name.split('::')[0..-3]
+        p file_klassname = [base_klassname, ext.capitalize].join('::')
+        begin
+          klass = file_klassname.constantize
+        rescue
+          raise "No class found for directory #{file}. Tried #{directory_klassname}"
+        end
+        #TODO fix kluge
+        klass.new(catalog: catalog, catalog_path: [catalog_path,file].join('/'), source_file:"")
       end
 
-      def collect(entry)
-        @relative_path = entry
-      end
     end
     
     class DirectoryEntries
-      attr_accessor :collector, :relative_path, :name
-      
+      attr_accessor :collector
+
       def initialize(collector:)
-        puts("DirectoryEntries.initialize: collector: #{collector}, relative_path: #{relative_path}") if DEBUG
+        puts("DirectoryEntries.initialize: collector: #{collector}") if DEBUG
         @collector = collector
       end
 
@@ -84,7 +93,7 @@ module LubuntuGui
         collector.source_file
       end
       
-      def instance(catalog_path: ,directory:)
+      def instance(catalog_path:, directory:)
         base_klassname = self.class.name.split('::')[0..-3]
         p directory_klassname = [base_klassname,directory.capitalize].join('::')
         begin
@@ -112,16 +121,15 @@ module LubuntuGui
         category: collector_category,
         item: CollectorEntry.new(collector: self).collector
       )
-      #@catalog.add_item(catalog_path: catalog_path, entry_category: 'collector_entry', item: @item)
       
       if (files = glob_children_folder_files).any?
-        raise "not ready"
-        #@catalog.add_item(catalog_path: catalog_path, entry_category: 'file_entries', item: {})
-        #file_entries = FileEntries.new(collector: self)
-
-  
-          #@catalog.add_item(entry_category: 'file_entries', catalog_path: [catalog_path,'file_entries'.join('/')], item: file_entry)
-          #@catalog.add_item(entry_category: 'file_entry', catalog_path: catalog_path, name: name, item: file_entry)
+        #raise "not ready"
+        files_category = @catalog.add_category(catalog: collector_category, category: 'file_entries')
+        file_entries = FileEntries.new(collector: self)
+        files.each{ |file|
+          item = file_entries.instance(catalog_path: files_category, file: file)
+          @catalog.add_to_category(category: files_category, item: item )
+        }
       
       end
   

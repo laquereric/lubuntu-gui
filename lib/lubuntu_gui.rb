@@ -18,6 +18,7 @@ require_relative "lubuntu_gui/application"
 require_relative "lubuntu_gui/applications"
 require_relative "lubuntu_gui/communities"
 require_relative "lubuntu_gui/languages"
+require_relative "lubuntu_gui/txt"
 require_relative "lubuntu_gui/user"
 require_relative "lubuntu_gui/users"
 
