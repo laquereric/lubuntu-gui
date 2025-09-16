@@ -63,7 +63,7 @@ module LubuntuGui
         relative_path_split.last
       end
 
-      def collect_item(entry)
+      def collect(entry)
         @relative_path = entry
       end
     end
@@ -77,8 +77,8 @@ module LubuntuGui
         @relative_path = relative_path
       end
 
-      def collect_item(entry)
-        @relative_path = entry
+      def collect(dir)
+        @relative_path = dir
       end
     end
 
@@ -92,22 +92,28 @@ module LubuntuGui
       
       puts("name: #{name}") if DEBUG
             
-      @item = CollectorEntry.new(collector: self).collector
-      @catalog.add_item(entry_category: 'collector_entry', catalog_path: catalog_path, item: @item)
+      collector_entry = CollectorEntry.new(collector: self).collector
+      #@catalog.add_item(catalog_path: catalog_path, entry_category: 'collector_entry', item: @item)
       
       if (files = glob_children_folder_files).any?
+        @catalog.add_item(catalog_path: catalog_path, entry_category: 'file_entries', item: {})
         file_entries = FileEntries.new(collector: self)
-        @catalog.add_item(entry_category: 'file_entries', catalog_path: catalog_path, item: file_entries)
+
   
           #@catalog.add_item(entry_category: 'file_entries', catalog_path: [catalog_path,'file_entries'.join('/')], item: file_entry)
           #@catalog.add_item(entry_category: 'file_entry', catalog_path: catalog_path, name: name, item: file_entry)
       
       end
-
-      glob_children_folder_dirs do |directory_entry|
+  
+      if (dirs = glob_children_folder_dirs).any?
+        @catalog.add_item(catalog_path: catalog_path, entry_category: 'directory_entries', item: {} )
         directory_entries = DirectoryEntries.new(collector: self)
-        @catalog.add_item(entry_category: 'directory_entries', catalog_path: catalog_path, item: directory_entries)
-          #@catalog.add_item(entry_category: 'file_entry', catalog_path: catalog_path, name: name, item: file_entry)
+        dir_catalog_path = [catalog_path, 'directory_entries'].join('/')
+        dirs.each{ |dir|
+          item = {}
+          item[dir] = "instance"
+          @catalog.add_parts_item(entry_path: dir_catalog_path, item: item )
+        }
       end
     end
 
@@ -120,16 +126,14 @@ module LubuntuGui
       puts("glob_children_folder_files: #{glob_string}") if DEBUG
       Dir.glob(glob_string)
         .select { |entry| !ignore_entry(entry) && File.file?(entry) }
-        .map { |entry| {relative_path: relative_path(entry)}}
-        .each{|file_entry| yield(file_entry)}
+        .map { |entry| relative_path(entry) }
     end
 
     def glob_children_folder_dirs
       puts("glob_children_folder_dirs: #{glob_string}") if DEBUG
       Dir.glob(glob_string)
         .select { |entry| !ignore_entry(entry) && File.directory?(entry) }
-        .map { |entry| {relative_path: relative_path(entry)}}
-        .each{|dir_entry| yield(dir_entry)}
+        .map { |entry| relative_path(entry) }
     end
 
     # Overrideable - See Instance for an example

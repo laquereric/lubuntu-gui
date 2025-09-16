@@ -8,31 +8,28 @@ module LubuntuGui
         end
 
         def add_item( catalog_path:, entry_category:, item:)
-            entry_path = [catalog_path, entry_category].compact.join('/')
-            add_parts_item(entry_path:, item:)
-            catalog_path
+            add_parts_item(entry_path:[catalog_path, entry_category].compact.join('/'), item:)
+            self
         end
 
-        private
+        #private
         
         def add_parts_item(entry_path:, item:)
             puts("add_parts_item: #{entry_path} item: #{item}") if DEBUG
             cursor = @parts
+            entry_path = entry_path[1..-1] if entry_path[0] == '/'
             length = entry_path.split('/').length
             entry_path.split('/').each_with_index do |folder, index|
-                is_last = index == length - 1
+                is_last = (index == length-1)
                 is_nil = cursor[folder].nil?
-                p "folder #{folder}, @index, #{index}, is_last: #{is_last}, is_nil: #{is_nil}"
-                if cursor[folder].nil?
-                    if is_last
-                        cursor[folder] = item
-                    else
-                        cursor[folder] = {}
-                    end
-                else
-                    raise "collision: #{folder}"
+                p "folder: #{folder}, @index: #{index}, is_last: #{is_last}, is_nil: #{is_nil}"
+                if is_nil
+                    cursor[folder] = {}
                 end
-                
+                if is_last
+                    cursor[folder].merge!(item)
+                end
+                cursor = cursor[folder]
             end
             puts("@parts: #{@parts}") if DEBUG
             #entry_path.split('/')[-1] = item
