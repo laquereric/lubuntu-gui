@@ -2,7 +2,6 @@
 
 module LubuntuGui
 
-  
   # Manages application launching and desktop integration
   class Application < ItemBase
     attr_accessor :desktop_entry

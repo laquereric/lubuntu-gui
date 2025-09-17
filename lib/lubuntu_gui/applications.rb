@@ -10,6 +10,6 @@ module LubuntuGui
     def initialize(catalog:, catalog_path:, source_file:)
       super
     end
+  
   end
 end
-

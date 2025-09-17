@@ -54,8 +54,8 @@ module LubuntuGui
         collector.catalog
       end
 
-      def source_file
-        collector.source_file
+      def get_source_file(file)
+        [collector.source_file,file].join('/')
       end
 
       def instance(catalog_path:, file:)
@@ -72,7 +72,7 @@ module LubuntuGui
           raise "No class found for directory #{file}. Tried #{directory_klassname}"
         end
         #TODO fix kluge
-        klass.new(catalog: catalog, catalog_path: [catalog_path,file].join('/'), source_file:"")
+        klass.new(catalog: catalog, catalog_path: [catalog_path,file].join('/'), source_file: get_source_file(file))
       end
 
     end
@@ -89,32 +89,28 @@ module LubuntuGui
         collector.catalog
       end
 
-      def source_file
-        collector.source_file
+      def get_source_file(directory)
+        [collector.source_file, directory].join('/')
       end
       
       def instance(catalog_path:, directory:)
         base_klassname = self.class.name.split('::')[0..-3]
-        p directory_klassname = [base_klassname,directory.capitalize].join('::')
+        p directory_klassname = [base_klassname,directory.camelize].join('::')
         begin
           klass = directory_klassname.constantize
         rescue
           raise "No class found for directory #{directory}. Tried #{directory_klassname}"
         end
-        #TODO fix kluge
-        klass.new(catalog: catalog, catalog_path: [catalog_path,directory].join('/'), source_file:"")
+      
+        klass.new(catalog: catalog, catalog_path: [catalog_path, directory].join('/'), source_file: get_source_file(directory))
       end
     end
 
     # Initialize the collector and load all child components
     def initialize(catalog:, catalog_path:, source_file:)
       @catalog = catalog
-      puts("catalog: #{@catalog}") if DEBUG
-            
       @source_file = source_file
-      puts("source_file: #{@source_file}") if DEBUG
-      
-      puts("name: #{name}") if DEBUG
+      puts("catalog: #{@catalog} source_file: #{@source_file} name: #{name}") if DEBUG
 
       collector_category = @catalog.add_category(catalog: catalog_path, category: 'collector')
       @catalog.add_to_category(
@@ -137,7 +133,7 @@ module LubuntuGui
         dirs_category = @catalog.add_category(catalog: collector_category, category: 'directory_entries')
         directory_entries = DirectoryEntries.new(collector: self)
         dirs.each{ |directory|
-          item = directory_entries.instance(catalog_path: dirs_category,directory: directory)
+          item = directory_entries.instance(catalog_path: dirs_category, directory: directory)
           @catalog.add_to_category(category: dirs_category, item: item )
         }
       end
