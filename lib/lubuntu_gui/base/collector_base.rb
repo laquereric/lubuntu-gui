@@ -54,40 +54,44 @@ module LubuntuGui
 
     end
 
-    class CollectorEntry
+    class CollectorInstanceObject
       attr_accessor :collector
       
       def initialize( collector:)
-        puts("CollectorEntry.initialize: collector: #{collector}") if DEBUG
+        puts("CollectorInstanceObject.initialize: collector: #{collector}") if DEBUG
         @collector = collector
       end
 
-      def item
-        self.collector
-      end
-      
-      def item_class
-        item.class
+      def item_label
+        self.collector.name + '_collector_object'
       end
 
-      def item_class_name
-        item_class.name
+      def item_hash
+        r = {}
+        r[item_label] = collector
+        r
       end
-
     end
 
     class FileEntries
       attr_accessor :collector
 
-      def self.process(collector:, category:, files:)
-        file_entries = FileEntries.new(collector: collector)
+      def self.get_file_entries(collector:)
+        FileEntries.new(collector: collector)
+      end
+
+      def self.process(collector:, catalog_path:, files:)
+        file_entries = FileEntries.get_file_entries(collector: collector)
         files.each{ |file|
-          item = file_entries.instance(catalog_path: category, file: file)
-          category.add_to_category(category: category, item: item )
+          item = file_entries.create_instance(catalog_path: catalog_path, file: file)
+          collector.catalog.add_to_category(
+            catalog_path: file_entries.get_catalog_path(catalog_path:catalog_path, file: file),
+            item: item
+          )
         }
       end
 
-      def initialize( collector:)
+      def initialize(collector:)
         puts("File.initialize: collector: #{collector}") if DEBUG
         @collector = collector
       end
@@ -113,11 +117,10 @@ module LubuntuGui
       end
       
       def get_source_file(file)
-        [collector.source_file,file].join('/')
+        [collector.source_file,file_parse(file)[:last]].join('/')
       end
 
-      def instance(catalog_path:, file:)
-
+      def create_instance(catalog_path:, file:)
         file_klassname = [catalog.instance.base_klassname,file_parse(file)[:ext].camelize].join('::')
         puts("file_klassname: #{file_klassname}") if DEBUG
         file_klassname.constantize.new(
@@ -129,14 +132,24 @@ module LubuntuGui
 
     end
     
-    class DirectoryEntries
+    class DirectoryObject
       attr_accessor :collector
-      
-      def self.process(collector:, category:, directories:)
-        directory_entries = DirectoryEntries.new(collector: collector)
+
+      def self.get_directory_object(collector:)
+        DirectoryObject.new(collector: collector)
+      end
+
+      def self.process(collector:, directories:)
+        directory_object = get_directory_object(collector: collector)
         directories.each{ |directory|
-          item = directory_entries.instance(catalog_path: category, directory: directory)
-          collector.catalog.add_to_category(category: category, item: item )
+          yield item = directory_object.create_instance(directory: directory)
+          #collector.catalog.add_to_category(
+          #  catalog_path: catalog_path,
+          #  item: item
+          #)
+          #PP.pp collector.catalog.parts
+          #binding.irb
+          item.collector.build
         }
       end
 
@@ -149,8 +162,9 @@ module LubuntuGui
         collector.catalog
       end
 
-      def get_catalog_path(catalog_path:, directory:)
-        [collector.catalog_path, directory_parse(directory)[:last]].join('/')
+      def get_catalog_path(directory:)
+        # collector_
+        [catalog_path, directory_parse(directory)[:last]].join('/')
       end
 
       def get_next_source_file(directory)
@@ -173,27 +187,29 @@ module LubuntuGui
         directory_klassname = [catalog.instance.base_klassname, catalog.instance.last_klassname(source_file: directory)].join('::')
       end
 
-      def instance(catalog_path:, directory:)
-        directory_klassname(directory).constantize.new(
-          catalog: catalog,
-          catalog_path: get_catalog_path(catalog_path: catalog_path, directory: directory),
+      def create_instance(directory:)
+        directory_collector = directory_klassname(directory).constantize.new(
           source_file: get_next_source_file(directory)
-        ).build
+        )
+        CollectorInstanceObject.new(collector: directory_collector)
       end
+    
     end
 
     # Initialize the collector and load all child components
-    def initialize(catalog:, catalog_path:, source_file:)
-      @catalog = catalog
+    def initialize(source_file:)
       @source_file = source_file
-      puts("catalog: #{@catalog} source_file: #{@source_file} name: #{name}") if DEBUG
+      puts("source_file: #{@source_file} name: #{name}") if DEBUG
     end
     
     def build
-      create_collector_catagory(catalog_path: catalog_path)
+      raise "cannot build collector #{self.class.name} without catalog" if @catalog.nil?
+      raise "cannot build collector #{self.class.name} without catalog_path" if @catalog_path.nil?
+
+      collector_category = create_collector_category(catalog_path: catalog_path)
       @globber = Globber.new(children_directory: @source_file)
-      create_files_catagory
-      create_dirs_catagory
+      #create_files_category(catalog_path: collector_catalog_path)
+      create_directories_category(catalog_path: collector_category)
       self
     end
     
@@ -224,27 +240,42 @@ module LubuntuGui
 
     private
 
-    def create_collector_catagory(catalog_path:)
-      @collector_category = @catalog.add_category(catalog: catalog_path, category: 'collector')
+    def create_collector_category(catalog_path:)
+      collector_object = CollectorInstanceObject.new(collector: self)
+      category_label ='collector'+"_"+'instance'
+      category_catalog_path = @catalog.add_category(catalog_path: catalog_path, category: category_label)
       @catalog.add_to_category(
-        category: @collector_category,
-        item: CollectorEntry.new(collector: self).collector
+        category_catalog_path: category_catalog_path,
+        item_hash: collector_object.item_hash
       )
     end
 
-    def create_files_catagory
-      files = @globber.glob_children_folder_files
-      return unless files.any?
-      @files_category = @catalog.add_category(catalog: @collector_category, category: 'files')
-      FileEntries.process(collector: self, category: @files_category, files: files )
-    end
-    
-    def create_dirs_catagory
+    def create_directories_category(catalog_path:)
       directories = @globber.glob_children_folder_dirs
       return unless directories.any?
-      @directory_category = @catalog.add_category(catalog: @collector_category, category: 'directories')
-      DirectoryEntries.process(collector: self, category: @directory_category, directories: directories )
+      category_label ='directories'+"_"+'instance'
+      category_catalog_path = @catalog.add_category(catalog_path: catalog_path, category: category_label)
+      DirectoryObject.process(collector: self, directories: directories) do |item|
+        item.collector.catalog = @catalog
+        item.collector.catalog_path = catalog_path + '/' + item.collector.name
+        @catalog.add_to_category(
+          category_catalog_path: category_catalog_path,
+          item_hash: item.item_hash
+        )
+      end
     end
+
+    def create_files_category
+      files = @globber.glob_children_folder_files
+      return unless files.any?
+      FileEntries.process(
+        collector: self,
+        catalog_path: @catalog.add_category(catalog_path: @collector_catalog_path, category: 'files'),
+        files: files 
+      )
+    end
+    
+
 
 =begin 
     def directory_path_length

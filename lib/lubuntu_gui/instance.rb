@@ -19,10 +19,8 @@ module LubuntuGui
     # Initialize a new instance
     #
     # Calls the parent constructor
-    def initialize(source_file:, catalog:, catalog_path:)
-
-      super(source_file: File.join(source_file,'instance'), catalog: catalog, catalog_path: nil)
-    
+    def initialize(source_file:)
+      super(source_file: File.join(source_file,'instance'))
     end
 
     # Forced since Instance is used from Catalog

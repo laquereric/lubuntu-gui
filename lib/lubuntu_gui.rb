@@ -14,6 +14,9 @@ require_relative "lubuntu_gui/filetype/ini"
 require_relative "lubuntu_gui/filetype/rb"
 require_relative "lubuntu_gui/filetype/txt"
 
+require_relative "lubuntu_gui/system/user"
+require_relative "lubuntu_gui/system/users"
+
 require_relative "lubuntu_gui/instance" #?
 require_relative "lubuntu_gui/command_executor"
 require_relative "lubuntu_gui/catalog"
@@ -26,12 +29,8 @@ require_relative "lubuntu_gui/panel"
 require_relative "lubuntu_gui/application"
 require_relative "lubuntu_gui/applications"
 require_relative "lubuntu_gui/communities"
-require_relative "lubuntu_gui/git_hu
-require_relative "lubuntu_gui/languages"
+require_relative "lubuntu_gui/git_hub"
 require_relative "lubuntu_gui/magentic_ui"
-require_relative "lubuntu_gui/user"
-require_relative "lubuntu_gui/users"
-require_relative "lubuntu_gui/system"
 
 require_relative "lubuntu_gui/window_manager"
 # LubuntuGui provides a comprehensive Ruby interface for managing Lubuntu desktop

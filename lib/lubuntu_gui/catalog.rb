@@ -4,20 +4,27 @@ module LubuntuGui
 
         def initialize(source_file:)
             @parts = {}
-            @instance = Instance.new(source_file: source_file, catalog: self, catalog_path: nil)
+            @instance = Instance.new(source_file: source_file)
+            @instance.catalog = self
+            @instance.catalog_path = ""
+
             @instance.build
         end
 
-        def add_category(catalog:, category:)
-            entry_path = [catalog,category].join('/')
+        def add_category(catalog_path:, category:)
+            p "add_category: catalog_path: #{catalog_path} category: #{category}"
+            entry_path = [catalog_path,category].join('/')
             add_parts_item(entry_path: entry_path, item: {})
             entry_path
         end
         
-        def add_to_category(category:, item:)
+        def add_to_category(category_catalog_path:, item_hash:)
+            p "add_to_category: category_catalog_path: #{category_catalog_path} item_hash: #{item_hash}"
             item_entry = {}
-            item_entry[item.catalog_property] = item
-            add_parts_item(entry_path: category, item: item_entry)
+            category_hash = get_item(entry_path: category_catalog_path)
+            raise "add category first at: #{category_path}" if category_hash.nil?
+            category_hash.merge!(item_hash)
+            category_catalog_path
         end
         
         def get_item(entry_path:)

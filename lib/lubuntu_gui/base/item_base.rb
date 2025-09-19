@@ -24,6 +24,10 @@ module LubuntuGui
     #end
 
     def initialize(catalog:, catalog_path:, source_file:)
+      @catalog = catalog
+      @catalog_path = catalog_path
+      @source_file = source_file
+    end
     # Initialize the collector and load all child components
     #def initialize(source_file:)
       #@source_file = source_file
@@ -31,9 +35,10 @@ module LubuntuGui
       #@directory = directory
       #puts("directory: #{@directory}") if DEBUG
       #@children = get_children
-    end
+    #end
     # Overrideable
     def build
+      raise "build not implemented for #{self.class.name}"
     end
 
     private
