@@ -1,41 +1,24 @@
 #!/usr/bin/env ruby
 
 require 'fileutils'
+require 'erb'
+
 module LubuntuGui
-# users.rb - User management utilities
-#ZshellWrapper::User.new do |user|
+
   class User < ItemBase
+
     attr_accessor :username, :password, :home_directory, :shell_path
 
     def initialize(source_file:)
       super
-      @users = []
-    end
-    
-    def add_user(username, home_dir = nil)
-      home_dir ||= "/home/#{username}"
-      @users << { username: username, home_dir: home_dir }
-      puts "Added user: #{username} with home directory: #{home_dir}"
-    end
-
-    def list_users
-      @users.each do |user|
-        puts "User: #{user[:username]}, Home: #{user[:home_dir]}"
-      end
+      binding.irb
+      @u = UserUtility.new(username:'testuser', password:'1234', home_directory:'/home/testuser', shell_path:'/usr/bin/zsh')
+      @u.prepare_linux
+      @u.prepare_dirs
+      @u.prepare_vscode
+      @u.prepare_firefox
+      @u.prepare_shell_files
     end
 
-    def create_user_directories
-      @users.each do |user|
-        FileUtils.mkdir_p(user[:home_dir]) unless Dir.exist?(user[:home_dir])
-        puts "Created directory for #{user[:username]}: #{user[:home_dir]}"
-      end
-    end
   end
-end
-
-if __FILE__ == $0
-  users = User.new(source_file: __FILE__)
-  users.add_user("testuser")
-  users.list_users
-  users.create_user_directories
 end

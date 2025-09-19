@@ -21,11 +21,7 @@ module LubuntuGui
     # Calls the parent constructor
     def initialize(source_file:, catalog:, catalog_path:)
 
-      #replace 'image/catalog.rb' with 'instance'
-      source_file = [source_file.split('/')[0..-2],'instance'].join('/')
-      
-      #instance is the root therefore catalog_path == nil
-      super(source_file: source_file, catalog: catalog, catalog_path: nil)
+      super(source_file: File.join(source_file,'instance'), catalog: catalog, catalog_path: nil)
     
     end
 

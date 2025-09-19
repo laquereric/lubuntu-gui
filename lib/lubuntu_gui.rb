@@ -2,13 +2,22 @@
 
 require "active_support/inflector"
 require_relative "lubuntu_gui/version"
-require_relative "lubuntu_gui/collector_base"
-require_relative "lubuntu_gui/item_base"
+
+require_relative "lubuntu_gui/base/item_base"
+require_relative "lubuntu_gui/base/collector_base"
+
+require_relative "lubuntu_gui/utility/base_utility"
+require_relative "lubuntu_gui/utility/user_utility"
+require_relative "lubuntu_gui/utility/system_utility"
+
+require_relative "lubuntu_gui/filetype/ini"
+require_relative "lubuntu_gui/filetype/rb"
+require_relative "lubuntu_gui/filetype/txt"
+
 require_relative "lubuntu_gui/instance" #?
 require_relative "lubuntu_gui/command_executor"
 require_relative "lubuntu_gui/catalog"
 require_relative "lubuntu_gui/configuration" #?
-
 require_relative "lubuntu_gui/dbus_client"
 require_relative "lubuntu_gui/desktop"
 require_relative "lubuntu_gui/folder"
@@ -17,15 +26,11 @@ require_relative "lubuntu_gui/panel"
 require_relative "lubuntu_gui/application"
 require_relative "lubuntu_gui/applications"
 require_relative "lubuntu_gui/communities"
-require_relative "lubuntu_gui/git_hub"
-require_relative "lubuntu_gui/ini"
+require_relative "lubuntu_gui/git_hu
 require_relative "lubuntu_gui/languages"
 require_relative "lubuntu_gui/magentic_ui"
-require_relative "lubuntu_gui/rb"
-require_relative "lubuntu_gui/txt"
 require_relative "lubuntu_gui/user"
 require_relative "lubuntu_gui/users"
-
 require_relative "lubuntu_gui/system"
 
 require_relative "lubuntu_gui/window_manager"

@@ -7,6 +7,7 @@ gemspec
 
 gem "rake", "~> 13.0"
 gem "inifile", "~> 3.0"
+gem "erb", "~> 3.0"
 
 group :development, :test do
   gem "rspec", "~> 3.12"

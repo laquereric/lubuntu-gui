@@ -5,10 +5,11 @@ module LubuntuGui
         def initialize(source_file:)
             @parts = {}
             @instance = Instance.new(source_file: source_file, catalog: self, catalog_path: nil)
+            @instance.build
         end
 
         def add_category(catalog:, category:)
-            entry_path =  [catalog,category].join('/')
+            entry_path = [catalog,category].join('/')
             add_parts_item(entry_path: entry_path, item: {})
             entry_path
         end
@@ -18,6 +19,19 @@ module LubuntuGui
             item_entry[item.catalog_property] = item
             add_parts_item(entry_path: category, item: item_entry)
         end
+        
+        def get_item(entry_path:)
+            puts("get_item: #{entry_path}") if DEBUG
+            cursor = @parts
+            entry_path = entry_path[1..-1] if entry_path[0] == '/'
+            entry_path_split = entry_path.split('/')
+            length = entry_path_split.length
+            entry_path_split.each_with_index do |folder, index|
+                p "folder: #{folder}, @index: #{index}"
+                cursor = cursor[folder]
+            end
+            cursor
+        end
 
         private
         
@@ -25,8 +39,9 @@ module LubuntuGui
             puts("add_parts_item: #{entry_path} item: #{item}") if DEBUG
             cursor = @parts
             entry_path = entry_path[1..-1] if entry_path[0] == '/'
-            length = entry_path.split('/').length
-            entry_path.split('/').each_with_index do |folder, index|
+            entry_path_split = entry_path.split('/')
+            length = entry_path_split.length
+            entry_path_split.each_with_index do |folder, index|
                 is_last = (index == length-1)
                 is_nil = cursor[folder].nil?
                 p "folder: #{folder}, @index: #{index}, is_last: #{is_last}, is_nil: #{is_nil}"
@@ -39,13 +54,6 @@ module LubuntuGui
                 cursor = cursor[folder]
             end
             puts("@parts: #{@parts}") if DEBUG
-            #entry_path.split('/')[-1] = item
-            #puts("@parts: #{parts}") if DEBUG
-            #unless entry_path.split('/').last == entry_category
-            #    cursor[entry_category] = {} if cursor[entry_category].nil?
-            #else
-            #    cursor[entry_category] = item
-            #end
         end
     end
 end

@@ -32,10 +32,8 @@ module LubuntuGui
       #puts("directory: #{@directory}") if DEBUG
       #@children = get_children
     end
-    # Overrideable - See Instance for an example
-
-    def catalog_property
-      self.class.to_s.split('::').last.downcase
+    # Overrideable
+    def build
     end
 
     private
